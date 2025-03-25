@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modified Chess</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Menu Screen -->
+  <div id="menuScreen">
+    <h1>Modified Chess</h1>
+    <div id="menu">
+      <select id="gameMode">
+        <option value="60">1 Min Blitz</option>
+        <option value="180">3 Min Blitz</option>
+        <option value="300">5 Min Rapid</option>
+        <option value="600">10 Min Rapid</option>
+      </select>
+      <button id="startGame">Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen" style="display:none;">
+    <div id="boardWrapper">
+      <div id="chessboard"></div>
+      <div id="blackClock" class="clock">01:00</div>
+      <div id="whiteClock" class="clock">01:00</div>
+    </div>
+  </div>
+
+  <!-- Pawn Promotion Modal -->
+  <div id="promotionModal" class="modal">
+    <div class="modal-content">
+      <h2>Choose Promotion</h2>
+      <div class="promotionChoices">
+        <img src="assets/white_queen.png" alt="Queen" class="promotionChoice" data-type="queen">
+        <img src="assets/white_rook.png" alt="Rook" class="promotionChoice" data-type="rook">
+        <img src="assets/white_bishop.png" alt="Bishop" class="promotionChoice" data-type="bishop">
+        <img src="assets/white_knight.png" alt="Knight" class="promotionChoice" data-type="knight">
+      </div>
+    </div>
+  </div>
+  <script src="gameController.js"></script>
+</body>
+</html>
