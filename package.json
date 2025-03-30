@@ -1,0 +1,16 @@
+{
+  "name": "chess_temp",
+  "version": "1.0.0",
+  "main": "gameController.js",
+  "scripts": {
+    "test": "mocha --config .mocharc.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.2",
+    "@babel/preset-env": "^7.23.2",
+    "@babel/register": "^7.22.15",
+    "chai": "^4.3.10",
+    "jsdom": "^23.2.0",
+    "mocha": "^10.2.0"
+  }
+}

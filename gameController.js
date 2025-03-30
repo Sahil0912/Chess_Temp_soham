@@ -333,35 +333,6 @@ function makeMove(move) {
   drawBoard();
 }
 
-/* ----- MOVE VALIDATION ----- */
-function isLegalMove(board, move, color) {
-  let moves = generateMovesForPiece(board, move.from);
-  let legal = moves.some(
-    (m) => m.to.row === move.to.row && m.to.col === move.to.col
-  );
-  if (!legal) {
-    console.log("Move not in generated moves:", move);
-    return false;
-  }
-
-  let newBoard = cloneBoard(board);
-  newBoard[move.to.row][move.to.col] = newBoard[move.from.row][move.from.col];
-  newBoard[move.from.row][move.from.col] = null;
-
-  let kingPos = findKing(newBoard, color);
-  if (!kingPos) {
-    console.log("King not found after move:", move);
-    return false;
-  }
-
-  if (!isKingSafe(newBoard, color)) {
-    console.log("King would be in check after move:", move, "King at:", kingPos);
-    return false;
-  }
-
-  return true;
-}
-
 /* ----- MOVE GENERATION ----- */
 function generateMovesForPiece(board, pos) {
   let piece = board[pos.row][pos.col];
@@ -526,18 +497,52 @@ function generateBishopMoves(board, pos, piece) {
     [-1, -1],
   ];
   directions.forEach((d) => {
-    let r = pos.row;
-    let c = pos.col;
-    while (true) {
-      r += d[0];
-      c += d[1];
+    for (let steps = 1; steps < 8; steps++) {
+      let r = pos.row + d[0] * steps;
+      let c = pos.col + d[1] * steps;
       if (!isInBounds(r, c)) break;
-      if (board[r][c] === null) {
+
+      // Skip if destination is occupied by a friendly piece
+      let destSquare = board[r][c];
+      if (destSquare && destSquare.color === piece.color) continue;
+
+      let standardPathValid = true;
+      let modifiedPawnCount = 0;
+      let modifiedPathValid = true;
+
+      // Check standard path validity (all intermediate squares empty)
+      for (let s = 1; s < steps; s++) {
+        let currentR = pos.row + d[0] * s;
+        let currentC = pos.col + d[1] * s;
+        if (board[currentR][currentC] !== null) {
+          standardPathValid = false;
+          break;
+        }
+      }
+
+      // Check modified path validity (exactly one pawn in intermediate squares)
+      for (let s = 1; s < steps; s++) {
+        let currentR = pos.row + d[0] * s;
+        let currentC = pos.col + d[1] * s;
+        let square = board[currentR][currentC];
+        if (square) {
+          if (square.type === 'pawn') {
+            modifiedPawnCount++;
+            if (modifiedPawnCount > 1) {
+              modifiedPathValid = false;
+              break;
+            }
+          } else {
+            modifiedPathValid = false;
+            break;
+          }
+        }
+      }
+      modifiedPathValid = modifiedPathValid && modifiedPawnCount === 1;
+
+      // Add move if either path is valid
+      if (standardPathValid || modifiedPathValid) {
         moves.push({ from: pos, to: { row: r, col: c }, piece });
-      } else {
-        if (board[r][c].color !== piece.color)
-          moves.push({ from: pos, to: { row: r, col: c }, piece });
-        break;
       }
     }
   });
@@ -888,4 +893,32 @@ function isLegalMove(board, move, color) {
 }
 
 /* ----- END GAME INITIALIZATION ----- */
-initializeBoard();
+// Only initialize if running in browser
+if (typeof process === 'undefined' || !process.env.NODE_ENV === 'test') {
+  initializeBoard();
+}
+
+
+// Export for Jest testing while maintaining browser compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    isPrime,
+    generateRookMoves,
+    generatePawnMoves,
+    isLegalMove,
+    initializeBoard,
+    checkForCheckmate,
+    isSquareAttacked,
+    serializeBoard,
+    cloneBoard,
+    getOpponent,
+    performCastle,
+    canCastle,
+    isEnPassantMove,
+    generateMovesForPiece,
+    isInBounds,
+    isKingSafe,
+    createPiece,
+    enPassantTarget
+  };
+}
